@@ -1,0 +1,23 @@
+name: "Memos"
+description: "Open-source, self-hosted note-taking tool built for quick capture. Markdown-native, lightweight, and fully yours."
+version: "0.24.0"
+slug: "memos"
+url: "https://github.com/usememos/memos"
+arch:
+  - amd64
+  - aarch64
+ports:
+  5230/tcp: 5230
+ports_description:
+  5230/tcp: "Memos Web UI"
+map:
+  - config:rw
+options: {}
+schema: {}
+webui: http://[HOST]:[PORT:5230]
+ingress: true
+ingress_port: 5230
+panel_icon: "mdi:notebook-outline"
+panel_title: "Memos"
+startup: application
+init: false

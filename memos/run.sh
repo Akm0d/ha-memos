@@ -1,12 +1,13 @@
 #!/bin/sh
 set -e
 
+DATA_DIR="/config/memos"
+
 echo "Starting Memos..."
-echo "Data directory: ${MEMOS_DATA}"
-echo "Port: ${MEMOS_PORT}"
+echo "Data directory: ${DATA_DIR}"
 
-# Ensure data directory exists
-mkdir -p "${MEMOS_DATA}"
+# Create data directory if it doesn't exist
+mkdir -p "${DATA_DIR}"
 
-# Start memos
-exec /usr/local/memos/memos --data "${MEMOS_DATA}" --port "${MEMOS_PORT}"
+# Start memos with the data directory
+exec /usr/local/memos/memos --data "${DATA_DIR}" --port 5230

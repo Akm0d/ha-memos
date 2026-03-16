@@ -1,6 +1,6 @@
 name: "Memos"
 description: "Open-source, self-hosted note-taking tool built for quick capture. Markdown-native, lightweight, and fully yours."
-version: "0.24.0"
+version: "0.24.1"
 slug: "memos"
 url: "https://github.com/usememos/memos"
 arch:

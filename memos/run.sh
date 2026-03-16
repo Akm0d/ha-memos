@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-DATA_DIR="/config/memos"
+DATA_DIR="/data"
 
 echo "Starting Memos..."
 echo "Data directory: ${DATA_DIR}"

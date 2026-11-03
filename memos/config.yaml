@@ -1,6 +1,6 @@
 name: "Memos"
 description: "Open-source, self-hosted note-taking tool built for quick capture. Markdown-native, lightweight, and fully yours."
-version: "26.11.0-2"
+version: "26.11.0-3"
 slug: "memos"
 url: "https://github.com/Akm0d/ha-memos"
 arch:
@@ -9,13 +9,25 @@ arch:
 ports:
   5230/tcp: 5230
 ports_description:
-  5230/tcp: "Memos Web UI"
+  5230/tcp: "Memos API for agents (no Web UI)"
 map:
   - data:rw
-options: {}
-schema: {}
-webui: http://[HOST]:[PORT:5230]
-ingress: false
+options:
+  admin_password_version: 1
+  access_mode: unmanaged
+  allow_registration: unmanaged
+schema:
+  admin_username: "str?"
+  admin_password: "password?"
+  admin_password_version: "int(1,)"
+  instance_title: "str?"
+  access_mode: "list(unmanaged|private|public)"
+  allow_registration: "list(unmanaged|allow|deny)"
+ingress: true
+ingress_port: 8099
+ingress_stream: true
+panel_icon: "mdi:notebook-outline"
+panel_title: "Memos"
 startup: application
 init: false
 host_network: false

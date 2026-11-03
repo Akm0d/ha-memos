@@ -1,6 +1,6 @@
 name: "Memos"
 description: "Open-source, self-hosted note-taking tool built for quick capture. Markdown-native, lightweight, and fully yours."
-version: "26.11.0-1"
+version: "26.11.0-2"
 slug: "memos"
 url: "https://github.com/Akm0d/ha-memos"
 arch:
@@ -15,11 +15,7 @@ map:
 options: {}
 schema: {}
 webui: http://[HOST]:[PORT:5230]
-ingress: true
-ingress_port: 5230
-ingress_stream: true
-panel_icon: "mdi:notebook-outline"
-panel_title: "Memos"
+ingress: false
 startup: application
 init: false
 host_network: false

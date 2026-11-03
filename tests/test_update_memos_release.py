@@ -19,7 +19,8 @@ class MemosReleaseUpdaterTest(unittest.TestCase):
         config = root / "config.yaml"
         changelog = root / "CHANGELOG.md"
         docker.write_text(
-            f"ARG MEMOS_WEB_TAG={upstream_tag}\n"\n            f"FROM neosmemo/memos:{upstream_tag}\n"
+            f"ARG MEMOS_WEB_TAG={upstream_tag}\n"
+            f"FROM neosmemo/memos:{upstream_tag}\n"
             "ENV MEMOS_DATA=/data\n",
             encoding="utf-8",
         )

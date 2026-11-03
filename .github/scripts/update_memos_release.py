@@ -11,6 +11,7 @@ from pathlib import Path
 
 TAG_PATTERN = re.compile(r"^v?(?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+)$")
 FROM_PATTERN = re.compile(r"^(FROM neosmemo/memos:)([^\s]+)(.*)$", re.MULTILINE)
+WEB_TAG_PATTERN = re.compile(r"^(ARG MEMOS_WEB_TAG=)([^\\s]+)$", re.MULTILINE)
 
 
 def version_tuple(tag: str) -> tuple[int, int, int]:
@@ -46,6 +47,9 @@ def update_release(dockerfile: Path, config: Path, changelog: Path, tag: str) ->
     if len(matches) != 1:
         raise ValueError(f"Expected one Memos Docker FROM line, found {len(matches)}")
     current_tag = matches[0][1]
+    web_tags = WEB_TAG_PATTERN.findall(docker_text)
+    if len(web_tags) != 1 or web_tags[0][1] != current_tag:
+        raise ValueError("Pinned Memos frontend source tag must match the runtime image tag")
     current_version = version_tuple(current_tag)
     if target_version < current_version:
         raise ValueError(f"Refusing downgrade from {current_tag} to {tag}")
@@ -81,6 +85,9 @@ def update_release(dockerfile: Path, config: Path, changelog: Path, tag: str) ->
     )
     updated_docker = FROM_PATTERN.sub(
         lambda match: f"{match.group(1)}{tag}{match.group(3)}", docker_text
+    )
+    updated_docker = WEB_TAG_PATTERN.sub(
+        lambda match: f"{match.group(1)}{tag}", updated_docker
     )
     return any((
         _write_if_changed(dockerfile, updated_docker),

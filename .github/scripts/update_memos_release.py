@@ -11,7 +11,7 @@ from pathlib import Path
 
 TAG_PATTERN = re.compile(r"^v?(?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+)$")
 FROM_PATTERN = re.compile(r"^(FROM neosmemo/memos:)([^\s]+)(.*)$", re.MULTILINE)
-WEB_TAG_PATTERN = re.compile(r"^(ARG MEMOS_WEB_TAG=)([^\\s]+)$", re.MULTILINE)
+WEB_TAG_PATTERN = re.compile(r"^(ARG MEMOS_WEB_TAG=)([^\s]+)$", re.MULTILINE)
 
 
 def version_tuple(tag: str) -> tuple[int, int, int]:

@@ -77,6 +77,10 @@ jobs:
         if: steps.check.outputs.needed == 'true'
         run: bash tests/smoke-addon.sh
 
+      - name: Verify actual Memos UI through simulated HA ingress
+        if: steps.check.outputs.needed == 'true'
+        run: bash tests/browser-smoke.sh
+
       - name: Commit and push
         if: steps.check.outputs.needed == 'true'
         shell: bash

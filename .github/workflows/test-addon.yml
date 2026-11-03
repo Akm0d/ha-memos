@@ -37,3 +37,5 @@ jobs:
 
       - name: Smoke test ingress and API-only listener
         run: bash tests/smoke-addon.sh
+      - name: Verify actual Memos UI renders through ingress in Chromium
+        run: bash tests/browser-smoke.sh

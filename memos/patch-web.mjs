@@ -15,6 +15,34 @@ function replace(path, before, after, count = 1) {
   fs.writeFileSync(file, original.replaceAll(before, after));
 }
 
+// A Home Assistant origin can host many ingress sessions/users. Never let
+// Memos bearer tokens or cross-tab auth broadcasts escape their ingress scope.
+replace(
+  "auth-state.ts",
+  'const TOKEN_KEY = "memos_access_token";',
+  'const TOKEN_KEY = "memos_access_token:" + ' + prefix + ";",
+);
+replace(
+  "auth-state.ts",
+  'const EXPIRES_KEY = "memos_token_expires_at";',
+  'const EXPIRES_KEY = "memos_token_expires_at:" + ' + prefix + ";",
+);
+replace(
+  "auth-state.ts",
+  'const TOKEN_CHANNEL_NAME = "memos_token_sync";',
+  'const TOKEN_CHANNEL_NAME = "memos_token_sync:" + ' + prefix + ";",
+);
+replace(
+  "hooks/useLiveMemoRefresh.ts",
+  'const SSE_CONNECTION_LOCK_NAME = "memos-sse-connection";',
+  'const SSE_CONNECTION_LOCK_NAME = "memos-sse-connection:" + ' + prefix + ";",
+);
+replace(
+  "hooks/useLiveMemoRefresh.ts",
+  'const SSE_SYNC_CHANNEL_NAME = "memos-sse-sync";',
+  'const SSE_SYNC_CHANNEL_NAME = "memos-sse-sync:" + ' + prefix + ";",
+);
+
 replace(
   "router/index.tsx",
   "const router = createBrowserRouter(routeConfig);",

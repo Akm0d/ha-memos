@@ -54,9 +54,17 @@ The main UI runs under Home Assistant's authenticated ingress path with an
 independently built, upstream-version-matched frontend. Home Assistant access
 alone does **not** log you into Memos.
 
-The host-mapped TCP `5230` allows `/api`, `/memos.api*`, `/file`, and
-`/healthz` routes only. Memos' own token/authentication rules apply.
-Regular pages and frontend assets return HTTP 404 on that port.
+The host-mapped TCP `5230` allows `/api`, `/memos.api*`, `/file`,
+`/healthz`, and the native Memos Streamable HTTP MCP endpoint at `/mcp`.
+Memos' own authentication and authorization rules apply. Give each external
+agent a separate Memos personal access token (PAT), sent as an
+`Authorization: Bearer <token>` header for authorized MCP tool calls.
+An agent using the mapped port connects to
+`http://<home-assistant-host>:5230/mcp`; use a trusted network or an HTTPS
+reverse proxy if accessed remotely. MCP remains independent of Home
+Assistant ingress login and does not provide Home Assistant SSO.
+
+Regular pages and frontend assets return HTTP 404 on port `5230`.
 The actual Memos process binds only to `127.0.0.1:5231` inside the container.
 
 When running Memos through HA ingress, verify navigation, login, assets,

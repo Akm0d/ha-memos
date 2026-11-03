@@ -1,5 +1,12 @@
 # Changelog
 
+## 26.11.0-1
+
+- Upgrade the packaged Memos container from 0.24.0 to 26.11.0 for a fresh Home Assistant installation.
+- Add a six-hour stable-release check that verifies upstream Docker images before updating the Dockerfile, manifest, and changelog.
+- Add updater regression tests, container build and HTTP startup smoke test CI.
+- Rebrand the Home Assistant add-on repository to Akm0d/ha-memos and document the existing database migration requirements.
+
 ## 0.24.3
 
 - Fix the container entrypoint so Memos actually stores its database and assets

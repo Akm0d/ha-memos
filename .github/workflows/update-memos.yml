@@ -1,0 +1,75 @@
+name: Update Memos stable release
+
+on:
+  schedule:
+    - cron: "27 */6 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: memos-stable-release
+  cancel-in-progress: false
+
+jobs:
+  update-memos:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Get latest stable Memos release
+        id: release
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG="$(curl -fsSL https://api.github.com/repos/usememos/memos/releases/latest | jq -r '.tag_name')"
+          [[ "$TAG" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+$ ]] || {
+            echo "Unsupported release tag: $TAG" >&2
+            exit 1
+          }
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "Latest stable Memos release: $TAG"
+
+      - name: Check current image
+        id: check
+        shell: bash
+        run: |
+          set -euo pipefail
+          CURRENT="$(sed -n 's|^FROM neosmemo/memos:\([^[:space:]]*\).*|\1|p' memos/Dockerfile)"
+          TAG="${{ steps.release.outputs.tag }}"
+          echo "Current image: $CURRENT"
+          echo "Latest stable: $TAG"
+          if [[ "$CURRENT" == "$TAG" ]]; then
+            echo "needed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "needed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Verify upstream Docker image exists
+        if: steps.check.outputs.needed == 'true'
+        run: docker manifest inspect "neosmemo/memos:${{ steps.release.outputs.tag }}" > /dev/null
+
+      - name: Update release files
+        if: steps.check.outputs.needed == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 .github/scripts/update_memos_release.py "${{ steps.release.outputs.tag }}"
+          python3 -m unittest discover -s tests -p 'test_update_memos_release.py' -v
+          git diff --check
+          git diff
+
+      - name: Commit and push
+        if: steps.check.outputs.needed == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add memos/Dockerfile memos/config.yaml memos/CHANGELOG.md
+          if ! git diff --cached --quiet; then
+            git commit -m "Update Memos to ${{ steps.release.outputs.tag }}"
+            git push
+          fi

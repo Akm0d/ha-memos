@@ -1,5 +1,16 @@
 # Changelog
 
+## 26.11.0-3
+
+- Restore Home Assistant ingress through an internal supervisor-only adapter.
+- Build a version-matched Memos frontend with relative assets and an ingress-aware
+  router, Connect RPC client, SSE endpoint, and attachment URLs.
+- Expose an API-only listener on port 5230 for agents; preserve Memos authentication.
+- Add opt-in Home Assistant Configuration options to generate native Memos
+  declarative admin bootstrap, password rotation, access policy and general settings.
+- Keep the upstream Memos 26.11.0 runtime binary unchanged and add release
+  compatibility checks for the independently compiled frontend.
+
 ## 26.11.0-2
 
 - Use Home Assistant's direct Web UI launcher instead of ingress for Memos, which generates root-relative frontend asset URLs incompatible with Home Assistant ingress paths.

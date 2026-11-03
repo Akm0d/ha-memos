@@ -19,28 +19,11 @@ jobs:
         run: python3 -m unittest discover -s tests -p 'test_*.py' -v
       - name: Validate start script
         run: sh -n memos/run.sh
+      - name: Go routing/security tests
+        run: |
+          cd memos/ingress
+          GO111MODULE=off go test -v .
       - name: Build Home Assistant add-on image
         run: docker build --pull -t memos-addon-ci -f memos/Dockerfile memos
-      - name: Smoke-test Memos startup
-        shell: bash
-        run: |
-          set -euo pipefail
-          mkdir -p "$RUNNER_TEMP/memos-data"
-          docker run -d --name memos-addon-ci \
-            -p 127.0.0.1:15230:5230 \
-            -v "$RUNNER_TEMP/memos-data:/data" \
-            memos-addon-ci
-          trap 'docker logs --tail 80 memos-addon-ci || true; docker rm -f memos-addon-ci || true' EXIT
-          for attempt in $(seq 1 45); do
-            if curl -fsS -o /dev/null http://127.0.0.1:15230/; then
-              echo "Memos HTTP startup successful"
-              exit 0
-            fi
-            if [[ "$(docker inspect -f '{{.State.Running}}' memos-addon-ci)" != "true" ]]; then
-              echo "Memos container stopped unexpectedly" >&2
-              exit 1
-            fi
-            sleep 2
-          done
-          echo "Memos startup did not complete" >&2
-          exit 1
+      - name: Smoke test ingress and API-only listener
+        run: bash tests/smoke-addon.sh

@@ -15,7 +15,21 @@ Open-source, self-hosted note-taking tool built for quick capture.
 1. Add this addon repository to Home Assistant
 2. Install the Memos addon
 3. Start the addon
-4. Access via the sidebar or `http://your-ha:5230`
+4. Click **Open Web UI** to open Memos directly in a browser tab, or visit `http://your-ha:5230`
+
+## Web UI and authentication
+
+This add-on uses Home Assistant's **direct Web UI launcher**, not HA ingress.
+Memos 26.11.0 serves frontend assets using absolute paths such as `/assets/...`,
+which do not load correctly beneath Home Assistant's session-specific ingress URL.
+
+The add-on exposes port `5230` for web access and agent API clients. Because
+this bypasses Home Assistant ingress, **Memos handles authentication itself**.
+Use Memos user logins and scoped access tokens for agents. Do not expose port
+5230 to an untrusted network without suitable network protections.
+
+Home Assistant single sign-on is not implemented by this packaging change.
+An ingress-aware login bridge requires separate design and testing.
 
 ## First Run
 

@@ -57,7 +57,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 .github/scripts/update_memos_release.py "${{ steps.release.outputs.tag }}"
-          python3 -m unittest discover -s tests -p 'test_update_memos_release.py' -v
+          python3 -m unittest discover -s tests -p 'test_*.py' -v
           git diff --check
           git diff
 

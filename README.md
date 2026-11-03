@@ -12,7 +12,12 @@ self-hosted note-taking application.
 
 [Add this repository to Home Assistant](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2FAkm0d%2Fha-memos)
 
-Memos is served through Home Assistant ingress and optionally through port 5230.
+Memos is launched through Home Assistant's **Open Web UI** link using its direct
+port `5230`, rather than through HA ingress. Memos uses root-relative frontend
+assets, which currently do not work through HA's session-specific ingress URLs.
+Memos controls its own login and agent API tokens; the direct port is not
+authenticated by Home Assistant.
+
 Its SQLite database and local assets persist in the add-on data directory.
 
 ## Stable release automation

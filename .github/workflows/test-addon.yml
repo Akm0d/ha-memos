@@ -16,7 +16,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Release updater regression tests
-        run: python3 -m unittest discover -s tests -p 'test_update_memos_release.py' -v
+        run: python3 -m unittest discover -s tests -p 'test_*.py' -v
       - name: Validate start script
         run: sh -n memos/run.sh
       - name: Build Home Assistant add-on image

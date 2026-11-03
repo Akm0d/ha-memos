@@ -1,5 +1,11 @@
 # Changelog
 
+## 26.11.0-2
+
+- Use Home Assistant's direct Web UI launcher instead of ingress for Memos, which generates root-relative frontend asset URLs incompatible with Home Assistant ingress paths.
+- Keep host port 5230 available for browser users and API clients; Memos handles user authentication directly.
+- Preserve the upstream 26.11.0 Docker image and six-hour stable release tracking.
+
 ## 26.11.0-1
 
 - Upgrade the packaged Memos container from 0.24.0 to 26.11.0 for a fresh Home Assistant installation.

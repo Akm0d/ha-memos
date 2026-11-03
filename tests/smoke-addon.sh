@@ -30,6 +30,25 @@ done
 [[ "$(curl -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:5230/assets/index.js)" == "404" ]]
 [[ "$(curl -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:5230/auth)" == "404" ]]
 
+# MCP is available on the API-only listener, while similarly named paths stay blocked.
+[[ "$(curl -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:5230/mcpevil)" == "404" ]]
+mcp_result="$(mktemp)"
+mcp_init='{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-03-26","capabilities":{},"clientInfo":{"name":"memos-addon-ci","version":"1.0.0"}}}'
+curl -fsS --max-time 10 \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json, text/event-stream' \
+  --data "$mcp_init" http://127.0.0.1:5230/mcp -o "$mcp_result"
+python3 - "$mcp_result" <<'PY'
+import json
+import sys
+with open(sys.argv[1], encoding="utf-8") as f:
+    response = json.load(f)
+assert response.get("jsonrpc") == "2.0", response
+assert response.get("id") == 1, response
+assert response.get("result", {}).get("serverInfo"), response
+PY
+rm -f "$mcp_result"
+
 # The ingress listener rejects clients without a verified Supervisor source.
 # CI explicitly grants loopback as an exception, but never a bare ingress path.
 [[ "$(curl -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:8099/)" == "400" ]]

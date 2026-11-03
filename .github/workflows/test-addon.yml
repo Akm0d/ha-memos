@@ -25,5 +25,15 @@ jobs:
           GO111MODULE=off go test -v .
       - name: Build Home Assistant add-on image
         run: docker build --pull -t memos-addon-ci -f memos/Dockerfile memos
+      - name: Validate native Memos administrator and policy configuration
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/memos-options"
+          printf '%s\n' '{"admin_username":"ciadmin","admin_password":"not-a-real-secret-ci-only","admin_password_version":1,"instance_title":"CI Memos","access_mode":"private","allow_registration":"deny"}' > "$RUNNER_TEMP/memos-options/options.json"
+          docker run --rm -v "$RUNNER_TEMP/memos-options:/data" \
+            --entrypoint /bin/sh memos-addon-ci \
+            -c 'python3 /usr/local/lib/configure-memos.py && /usr/local/memos/memos config validate --config-dir /etc/memos/config'
+
       - name: Smoke test ingress and API-only listener
         run: bash tests/smoke-addon.sh

@@ -39,5 +39,5 @@ class IngressAndAPIConfigurationTest(unittest.TestCase):
 
     def test_revision_and_immutable_upstream_image(self):
         manifest = CONFIG.read_text(encoding="utf-8")
-        self.assertIn('version: "26.11.0-3"', manifest)
+        self.assertIn('version: "26.11.0-4"', manifest)
         self.assertIn("FROM neosmemo/memos:26.11.0", (ADDON / "Dockerfile").read_text())

@@ -1,13 +1,14 @@
 #!/bin/sh
 set -eu
+umask 077
 
-DATA_DIR="/data"
+# /data is persistent HA app storage. Never delete or replace it on upgrade.
+mkdir -p /data /etc/memos/config
 
-echo "Starting Memos..."
-echo "Data directory: ${DATA_DIR}"
+# Generate only explicitly requested declarative resources. HA options live
+# in /data/options.json; the bootstrap password stays out of generated JSON.
+python3 /usr/local/lib/configure-memos.py
+/usr/local/memos/memos config validate --config-dir /etc/memos/config
 
-# Create data directory if it doesn't exist
-mkdir -p "${DATA_DIR}"
-
-# Start Memos with Home Assistant's persistent add-on data directory.
-exec /usr/local/memos/memos --data "${DATA_DIR}" --port 5230
+# Go PID 1 supervises the official Memos process plus ingress/API listeners.
+exec /usr/local/bin/ha-memos-gateway

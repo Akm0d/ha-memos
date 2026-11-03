@@ -12,13 +12,19 @@ self-hosted note-taking application.
 
 [Add this repository to Home Assistant](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2FAkm0d%2Fha-memos)
 
-Memos is launched through Home Assistant's **Open Web UI** link using its direct
-port `5230`, rather than through HA ingress. Memos uses root-relative frontend
-assets, which currently do not work through HA's session-specific ingress URLs.
-Memos controls its own login and agent API tokens; the direct port is not
-authenticated by Home Assistant.
+**Home Assistant ingress** embeds the Memos UI in HA, with the normal Memos
+sign-in. The exposed port `5230` is for Memos API, files, and health checks
+only; the UI is not available on this port.
 
-Its SQLite database and local assets persist in the add-on data directory.
+The add-on Configuration tab provides optional administrator bootstrap, password
+rotation (by increasing its version), instance title, registration policy, and
+public/private access policy. Unset options leave existing Memos state unmanaged.
+Newly managed settings can take precedence over values previously set inside
+Memos, so check their effects before enabling.
+
+It builds a version-matched, ingress-aware frontend from the official Memos
+source and continues to run the unmodified upstream Memos backend binary.
+The SQLite database and attachments persist in the HA add-on data directory.
 
 ## Stable release automation
 
@@ -29,8 +35,9 @@ version, and changelog, then commits the change. Release candidates are ignored.
 New versions use upstream MAJOR.MINOR.PATCH with a packaging suffix, such as
 26.11.0-1; add-on-only revisions can use -2, -3, etc.
 
-The PR test workflow tests the release updater, builds the add-on image, and
-smoke-tests HTTP startup. Home Assistant must refresh the repository and have
+The PR test workflow tests native HA configuration, ingress routing, the
+release updater, builds the add-on image, and smoke-tests both ingress and API
+routes. A scheduled update must pass the same checks before committing. Home Assistant must refresh the repository and have
 automatic add-on updates enabled to install new versions automatically.
 
 ## Moving existing data from Fenix

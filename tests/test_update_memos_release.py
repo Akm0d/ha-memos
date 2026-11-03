@@ -19,6 +19,7 @@ class MemosReleaseUpdaterTest(unittest.TestCase):
         config = root / "config.yaml"
         changelog = root / "CHANGELOG.md"
         docker.write_text(
+            f"ARG MEMOS_WEB_TAG={upstream_tag}\n"
             f"FROM neosmemo/memos:{upstream_tag}\n"
             "ENV MEMOS_DATA=/data\n",
             encoding="utf-8",
@@ -45,6 +46,7 @@ class MemosReleaseUpdaterTest(unittest.TestCase):
             )
             self.assertTrue(updater.update_release(docker, config, changelog, "26.11.1"))
             self.assertIn("FROM neosmemo/memos:26.11.1", docker.read_text())
+            self.assertIn("ARG MEMOS_WEB_TAG=26.11.1", docker.read_text())
             self.assertIn('version: "26.11.1-1"', config.read_text())
             self.assertIn("## 26.11.1-1", changelog.read_text())
             self.assertFalse(updater.update_release(docker, config, changelog, "26.11.1"))
@@ -81,6 +83,9 @@ class MemosReleaseUpdaterTest(unittest.TestCase):
         repository = (ROOT / "repository.json").read_text(encoding="utf-8")
         image_tags = updater.FROM_PATTERN.findall(docker)
         self.assertEqual(len(image_tags), 1)
+        web_tags = updater.WEB_TAG_PATTERN.findall(docker)
+        self.assertEqual(len(web_tags), 1)
+        self.assertEqual(web_tags[0][1], image_tags[0][1])
         expected = updater.add_on_version(image_tags[0][1]).removesuffix("-1")
         versions = [line for line in config.splitlines() if line.startswith("version: ")]
         self.assertEqual(len(versions), 1)

@@ -61,6 +61,22 @@ jobs:
           git diff --check
           git diff
 
+      - name: Validate adapted source and build the actual add-on
+        if: steps.check.outputs.needed == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          sh -n memos/run.sh
+          cd memos/ingress
+          GO111MODULE=off go test -v .
+          cd ../..
+          docker build --pull --platform linux/amd64 \
+            --progress=plain -t memos-addon-ci -f memos/Dockerfile memos
+
+      - name: Smoke test ingress and API routes before publishing
+        if: steps.check.outputs.needed == 'true'
+        run: bash tests/smoke-addon.sh
+
       - name: Commit and push
         if: steps.check.outputs.needed == 'true'
         shell: bash

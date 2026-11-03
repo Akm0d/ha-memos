@@ -82,9 +82,10 @@ class MemosReleaseUpdaterTest(unittest.TestCase):
         image_tags = updater.FROM_PATTERN.findall(docker)
         self.assertEqual(len(image_tags), 1)
         expected = updater.add_on_version(image_tags[0][1]).removesuffix("-1")
-        self.assertRegex(config, rf'(?m)^version: "{expected}-[1-9][0-9]*"
-        self.assertIn("github.com/Akm0d/ha-memos", repository)
-        self.assertIn("github.com/Akm0d/ha-memos", config)
-)
+        versions = [line for line in config.splitlines() if line.startswith("version: ")]
+        self.assertEqual(len(versions), 1)
+        self.assertTrue(versions[0].startswith('version: "' + expected + '-'))
+        revision = versions[0].rsplit('-', 1)[-1].rstrip('"')
+        self.assertTrue(revision.isdecimal() and int(revision) >= 1)
         self.assertIn("github.com/Akm0d/ha-memos", repository)
         self.assertIn("github.com/Akm0d/ha-memos", config)

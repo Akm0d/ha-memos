@@ -1,5 +1,13 @@
 # Changelog
 
+## 26.11.0-4
+
+- Forward native Memos `/mcp` (Streamable HTTP) through the agent-facing
+  API-only listener on TCP 5230, without exposing browser UI routes.
+- Add route-isolation regression tests and a live MCP initialize smoke test.
+- Document token-based MCP agent access and retain Home Assistant ingress
+  as the separate browser interface.
+
 ## 26.11.0-3
 
 - Restore Home Assistant ingress through an internal supervisor-only adapter.

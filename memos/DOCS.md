@@ -12,28 +12,55 @@ Open-source, self-hosted note-taking tool built for quick capture.
 
 ## Installation
 
-1. Add this addon repository to Home Assistant
-2. Install the Memos addon
-3. Start the addon
-4. Click **Open Web UI** to open Memos directly in a browser tab, or visit `http://your-ha:5230`
+1. Add the repository to Home Assistant and install the Memos add-on.
+2. In **Configuration**, optionally set an administrator username and password
+   before the first start. You may leave them empty and create an administrator
+   inside Memos instead.
+3. Start the add-on and select **Open Web UI**. The Memos frontend is embedded
+   through Home Assistant ingress and uses **Memos authentication**, not HA SSO.
+4. Once authenticated, create Memos access tokens for individual agents.
 
-## Web UI and authentication
+### Home Assistant Configuration options
 
-This add-on uses Home Assistant's **direct Web UI launcher**, not HA ingress.
-Memos 26.11.0 serves frontend assets using absolute paths such as `/assets/...`,
-which do not load correctly beneath Home Assistant's session-specific ingress URL.
+| Option | Default | Behavior |
+| --- | --- | --- |
+| `admin_username` | unset | Optional bootstrap admin; must pair with password |
+| `admin_password` | unset | Masked HA option, also stored in HA Supervisor config/backups |
+| `admin_password_version` | 1 | Increase to deliberately reset the administrator password |
+| `instance_title` | unset | Optional Memos title managed by HA |
+| `access_mode` | unmanaged | Select unmanaged, private, or public |
+| `allow_registration` | unmanaged | Select unmanaged, allow, or deny |
 
-The add-on exposes port `5230` for web access and agent API clients. Because
-this bypasses Home Assistant ingress, **Memos handles authentication itself**.
-Use Memos user logins and scoped access tokens for agents. Do not expose port
-5230 to an untrusted network without suitable network protections.
+These map to native Memos 26.10+ declarative configuration, not a custom
+database implementation. They apply on startup. **Unmanaged is the default**
+because existing Memos installations must not be overwritten automatically.
+If you opt in to HA-managed settings, Memos may disable editing those fields
+in its own admin UI. The GENERAL setting is a group; the add-on uses native
+`ignoreChanges` to leave other documented GENERAL fields editable.
 
-Home Assistant single sign-on is not implemented by this packaging change.
-An ingress-aware login bridge requires separate design and testing.
+An administrator password is stored by Supervisor in `/data/options.json`;
+the generated declarative JSON references a separate temporary password file.
+Never share Supervisor options, backups, or secret-bearing logs. Changing the
+password text without raising its version does not reset an existing account.
+Increasing the version revokes active Memos sessions.
 
-## First Run
+Setting an option back to `unmanaged` explicitly releases the associated
+configuration with `destroy: false` so existing data is retained.
+A previously provisioned administrator remains a Memos user when released.
 
-On first access, you'll be prompted to create an admin account.
+### Ingress and agent connectivity
+
+The main UI runs under Home Assistant's authenticated ingress path with an
+independently built, upstream-version-matched frontend. Home Assistant access
+alone does **not** log you into Memos.
+
+The host-mapped TCP `5230` allows `/api`, `/memos.api*`, `/file`, and
+`/healthz` routes only. Memos' own token/authentication rules apply.
+Regular pages and frontend assets return HTTP 404 on that port.
+The actual Memos process binds only to `127.0.0.1:5231` inside the container.
+
+When running Memos through HA ingress, verify navigation, login, assets,
+uploads, and attachments on your system before disabling an old instance.
 
 ## Data Storage
 

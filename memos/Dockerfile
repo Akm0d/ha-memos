@@ -1,4 +1,4 @@
-FROM neosmemo/memos:0.24.0
+FROM neosmemo/memos:26.11.0
 
 # Keep the persistent location correct even if the startup command changes.
 ENV MEMOS_DATA="/data" \

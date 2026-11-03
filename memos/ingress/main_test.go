@@ -24,10 +24,10 @@ func TestIngressPrefixIsStrictlyValidated(t *testing.T) {
 }
 
 func TestOnlyMachineRoutesAccessibleOnHostPort(t *testing.T) {
- for _, p := range []string{"/api", "/api/v1/memos", "/memos.api.v1.MemoService/ListMemos", "/file/attachments/abc", "/healthz"} {
+ for _, p := range []string{"/mcp", "/api", "/api/v1/memos", "/memos.api.v1.MemoService/ListMemos", "/file/attachments/abc", "/healthz"} {
   if !isAPIRoute(p) { t.Errorf("should allow API route %q", p) }
  }
- for _, p := range []string{"/", "/index.html", "/assets/index.js", "/auth", "/setting", "/apiary", "/files"} {
+ for _, p := range []string{"/", "/index.html", "/assets/index.js", "/auth", "/setting", "/apiary", "/files", "/mcp/", "/mcpevil", "/mcp/tools"} {
   if isAPIRoute(p) { t.Errorf("should block UI route %q", p) }
   req := httptest.NewRequest(http.MethodGet, p, nil)
   w := httptest.NewRecorder()

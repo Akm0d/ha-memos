@@ -1,6 +1,6 @@
 name: "Memos"
 description: "Open-source, self-hosted note-taking tool built for quick capture. Markdown-native, lightweight, and fully yours."
-version: "26.11.0-3"
+version: "26.11.0-4"
 slug: "memos"
 url: "https://github.com/Akm0d/ha-memos"
 arch:
@@ -9,7 +9,7 @@ arch:
 ports:
   5230/tcp: 5230
 ports_description:
-  5230/tcp: "Memos API for agents (no Web UI)"
+  5230/tcp: "Memos REST API and MCP for agents (no Web UI)"
 map:
   - data:rw
 options:

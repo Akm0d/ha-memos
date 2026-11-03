@@ -47,7 +47,8 @@ func ingressBase(header string) (string, error) {
 }
 
 func isAPIRoute(p string) bool {
- return p == "/api" || strings.HasPrefix(p, "/api/") ||
+ return p == "/mcp" ||
+  p == "/api" || strings.HasPrefix(p, "/api/") ||
   p == "/memos.api" || strings.HasPrefix(p, "/memos.api.") ||
   p == "/file" || strings.HasPrefix(p, "/file/") ||
   p == "/healthz"

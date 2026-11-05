@@ -1,5 +1,12 @@
 # Changelog
 
+## 26.11.0-5
+
+- Serve standalone web UI and OAuth callbacks alongside API/MCP on port 5230;
+  retain Supervisor-only Home Assistant ingress on port 8099.
+- Extend regression and smoke tests for the standalone UI and callback.
+- Document standalone HTTPS and network access considerations.
+
 ## 26.11.0-4
 
 - Forward native Memos `/mcp` (Streamable HTTP) through the agent-facing

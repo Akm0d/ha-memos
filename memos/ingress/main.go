@@ -1,4 +1,4 @@
-// Memos Home Assistant ingress adapter and API-only listener.
+// Memos Home Assistant ingress adapter and standalone browser/API listener.
 // The official Memos binary remains the only application backend.
 package main
 
@@ -155,14 +155,14 @@ func ingressHandler() http.Handler {
  })
 }
 
-func apiOnlyHandler() http.Handler {
+func standaloneHandler() http.Handler {
  proxy := newBackendProxy("")
  return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-  if !isAPIRoute(r.URL.Path) {
-   http.NotFound(w, r)
+  if isAPIRoute(r.URL.Path) {
+   proxy.ServeHTTP(w, r)
    return
   }
-  proxy.ServeHTTP(w, r)
+  serveWeb(w, r, "")
  })
 }
 
@@ -189,13 +189,13 @@ func run() error {
   return fmt.Errorf("start upstream Memos: %w", err)
  }
  ingress := &http.Server{Addr: "0.0.0.0:8099", Handler: ingressHandler(), ReadHeaderTimeout: 15*time.Second}
- api := &http.Server{Addr: "0.0.0.0:5230", Handler: apiOnlyHandler(), ReadHeaderTimeout: 15*time.Second}
+ api := &http.Server{Addr: "0.0.0.0:5230", Handler: standaloneHandler(), ReadHeaderTimeout: 15*time.Second}
  failed := make(chan error, 2)
  exited := make(chan error, 1)
  go func() { exited <- memos.Wait() }()
  startServer(ctx, ingress, failed)
  startServer(ctx, api, failed)
- log.Print("Memos gateway: HA ingress 8099; API-only 5230; backend loopback 5231")
+ log.Print("Memos gateway: HA ingress 8099; standalone web/API/MCP 5230; backend loopback 5231")
  var result error
  select {
  case result = <-exited:

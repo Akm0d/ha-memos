@@ -13,8 +13,9 @@ self-hosted note-taking application.
 [Add this repository to Home Assistant](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2FAkm0d%2Fha-memos)
 
 **Home Assistant ingress** embeds the Memos UI in HA, with the normal Memos
-sign-in. The exposed port `5230` is for Memos API, files, and health checks
-only; the UI is not available on this port.
+sign-in. Port `5230` provides a standalone browser UI with OAuth callback routing,
+API, MCP, files, and health checks. Use HTTPS and network access controls;
+Home Assistant ingress remains available separately.
 
 The add-on Configuration tab provides optional administrator bootstrap, password
 rotation (by increasing its version), instance title, registration policy, and

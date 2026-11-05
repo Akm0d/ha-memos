@@ -9,7 +9,7 @@ CONFIG = ADDON / "config.yaml"
 
 
 class IngressAndAPIConfigurationTest(unittest.TestCase):
-    def test_ingress_and_api_only_ports(self):
+    def test_ingress_and_standalone_ports(self):
         source = CONFIG.read_text(encoding="utf-8")
         self.assertRegex(source, r"(?m)^ingress: true$")
         self.assertRegex(source, r"(?m)^ingress_port: 8099$")
@@ -34,10 +34,12 @@ class IngressAndAPIConfigurationTest(unittest.TestCase):
         self.assertIn("127.0.0.1", gateway)
         self.assertIn("isSupervisor(r.RemoteAddr)", gateway)
         self.assertIn("isAPIRoute(r.URL.Path)", gateway)
+        self.assertIn("func standaloneHandler() http.Handler", gateway)
+        self.assertIn('serveWeb(w, r, "")', gateway)
         self.assertIn("createBrowserRouter(routeConfig", patch)
         self.assertIn("baseUrl: window.location.origin,", patch)
 
     def test_revision_and_immutable_upstream_image(self):
         manifest = CONFIG.read_text(encoding="utf-8")
-        self.assertIn('version: "26.11.0-4"', manifest)
+        self.assertIn('version: "26.11.0-5"', manifest)
         self.assertIn("FROM neosmemo/memos:26.11.0", (ADDON / "Dockerfile").read_text())

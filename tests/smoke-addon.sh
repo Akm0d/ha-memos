@@ -25,12 +25,17 @@ for attempt in $(seq 1 90); do
 done
 [[ "$ready" == "true" ]] || { echo "Memos health check timed out" >&2; exit 1; }
 
-# Host port is not the browser UI and cannot reveal its frontend bundles.
-[[ "$(curl -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:5230/)" == "404" ]]
-[[ "$(curl -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:5230/assets/index.js)" == "404" ]]
-[[ "$(curl -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:5230/auth)" == "404" ]]
+# Standalone host listener serves the frontend and OAuth callback.
+curl -fsS --max-time 8 http://127.0.0.1:5230/ -o "$html"
+grep -Fq 'window.__MEMOS_INGRESS_BASE__=""' "$html"
+grep -Fq '<base href="/">' "$html"
+[[ "$(curl -sS -o /dev/null -w '%{http_code}' 'http://127.0.0.1:5230/auth/callback?code=test&state=test')" == "200" ]]
 
-# MCP is available on the API-only listener, while similarly named paths stay blocked.
+asset="$(grep -oE 'src="./assets/[^"]+\.js"' "$html" | head -n1 | cut -d '"' -f2 | sed 's|^./||')"
+[[ -n "$asset" ]] || { echo "Missing standalone frontend JS asset" >&2; exit 1; }
+curl -fsS --max-time 8 "http://127.0.0.1:5230/$asset" -o /dev/null
+
+# MCP remains available on the standalone listener; unrelated paths use the UI router.
 [[ "$(curl -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:5230/mcpevil)" == "404" ]]
 mcp_result="$(mktemp)"
 mcp_init='{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-03-26","capabilities":{},"clientInfo":{"name":"memos-addon-ci","version":"1.0.0"}}}'
@@ -64,4 +69,4 @@ asset="$(grep -oE 'src="\./assets/[^"]+\.js"' "$html" | head -n1 | cut -d '"' -f
 curl -fsS --max-time 8 -H "X-Ingress-Path: $prefix/" "http://127.0.0.1:8099/$asset" -o /dev/null
 curl -fsS --max-time 8 -H "X-Ingress-Path: $prefix/" http://127.0.0.1:8099/healthz | grep -q 'Service ready'
 
-echo "Memos API-only and Home Assistant ingress smoke tests passed"
+echo "Memos standalone web/API/MCP and Home Assistant ingress smoke tests passed"
